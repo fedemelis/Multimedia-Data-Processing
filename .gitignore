@@ -8,6 +8,7 @@
 *.obj
 *.ipch
 *.json
+*.tlog
 
 # Precompiled Headers
 *.gch
