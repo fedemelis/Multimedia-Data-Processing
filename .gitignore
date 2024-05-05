@@ -11,6 +11,7 @@
 *.tlog
 **/x64/
 **/debug/
+**/vs/
 
 # Precompiled Headers
 *.gch
