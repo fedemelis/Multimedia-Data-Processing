@@ -9,6 +9,8 @@
 *.ipch
 *.json
 *.tlog
+**/x64/
+**/debug/
 
 # Precompiled Headers
 *.gch
