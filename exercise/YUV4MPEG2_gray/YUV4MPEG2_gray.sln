@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YUV4MPEG2_gray", "YUV4MPEG2_gray.vcxproj", "{E20554DC-C7DB-4831-939C-AB01181FBBED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Debug|x64.ActiveCfg = Debug|x64
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Debug|x64.Build.0 = Debug|x64
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Debug|x86.ActiveCfg = Debug|Win32
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Debug|x86.Build.0 = Debug|Win32
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Release|x64.ActiveCfg = Release|x64
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Release|x64.Build.0 = Release|x64
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Release|x86.ActiveCfg = Release|Win32
+		{E20554DC-C7DB-4831-939C-AB01181FBBED}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E33B265-41C6-4046-A4BD-7A3B6DF38A4B}
+	EndGlobalSection
+EndGlobal

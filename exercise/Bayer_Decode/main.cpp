@@ -5,10 +5,10 @@
 #include <array>
 #include <cassert>
 #include <cfenv>
-#include <cfloat>
+//#include <cfloat>
 #include <climits>
 #include <cmath>
-#include <cstdlib>
+#include <cstdint>
 
 void error(const char* msg) {
 	std::cout << msg << '\n';
@@ -84,6 +84,17 @@ public:
 	}
 };
 
+float clamp(float x) {
+	if (x < 0)
+	{
+		x = 0;
+	}
+	else if (x > 255) {
+		x = 255;
+	}
+	return x;
+}
+
 auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 	for (int r = 0; r < rgb_img.get_row(); r++)
 	{
@@ -115,16 +126,16 @@ auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 						float comp = rgb_img(r - 1, c - 1, true)[2] + rgb_img(r + 1, c + 1, true)[2];
 						float comp2 = rgb_img(r, c)[1] - rgb_img(r - 1, c - 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c + 1, true)[1];
-						rgb_img(r, c)[2] = std::round((comp / 2) + (comp2 / 4));
+						rgb_img(r, c)[2] = clamp(((comp / 2) + (comp2 / 4)));
 					}
 					else if (diag1grad > diag2grad)
 					{
 						float comp = rgb_img(r - 1, c + 1, true)[2] + rgb_img(r + 1, c - 1, true)[2];
 						float comp2 = rgb_img(r, c)[1] - rgb_img(r - 1, c + 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c - 1, true)[1];
-						rgb_img(r, c)[2] = std::round((comp / 2) + (comp2 / 4));
+						rgb_img(r, c)[2] =  clamp(((float)(comp / 2) + (float)(comp2 / 4)));
 					}
-					else
+					else if (diag1grad == diag2grad)
 					{
 						float comp = rgb_img(r - 1, c + 1, true)[2] + rgb_img(r + 1, c - 1, true)[2]
 							+ rgb_img(r - 1, c - 1, true)[2] + rgb_img(r + 1, c + 1, true)[2];
@@ -133,15 +144,15 @@ auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 							rgb_img(r, c)[1] - rgb_img(r - 1, c + 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c - 1, true)[1];
 
-						rgb_img(r, c)[2] = std::round((comp / 4) + (comp2 / 8));
+						rgb_img(r, c)[2] =  clamp(((float)(comp / 4) + (float)(comp2 / 8)));
 					}
 				}
 				//h interpolation for red and v interpolation for blue
 				else
 				{
 					// R pari, C dispari
-					rgb_img(r, c)[0] = std::round(((rgb_img(r, c - 1, true)[0] + rgb_img(r, c + 1, true)[0]) / 2));
-					rgb_img(r, c)[2] = std::round(((rgb_img(r - 1, c, true)[2] + rgb_img(r + 1, c, true)[2]) / 2));
+					rgb_img(r, c)[0] =  clamp((((float)(rgb_img(r, c - 1, true)[0] + (float)rgb_img(r, c + 1, true)[0]) / 2)));
+					rgb_img(r, c)[2] =  clamp((((float)(rgb_img(r - 1, c, true)[2] + (float)rgb_img(r + 1, c, true)[2]) / 2)));
 				}
 			}
 			else
@@ -150,8 +161,8 @@ auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 				if (colodds == 0)
 				{
 					// R dispari, C pari
-					rgb_img(r, c)[0] = std::round(((rgb_img(r - 1, c, true)[0] + rgb_img(r + 1, c, true)[0]) / 2));
-					rgb_img(r, c)[2] = std::round(((rgb_img(r, c - 1, true)[2] + rgb_img(r, c + 1, true)[2]) / 2));
+					rgb_img(r, c)[0] = clamp((((float)(rgb_img(r - 1, c, true)[0] + (float)rgb_img(r + 1, c, true)[0]) / 2)));
+					rgb_img(r, c)[2] = clamp((((float)(rgb_img(r, c - 1, true)[2] + (float)rgb_img(r, c + 1, true)[2]) / 2)));
 					
 				}
 				//no interpolation for blue and cross interpolation for red
@@ -174,16 +185,16 @@ auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 						float comp = rgb_img(r - 1, c - 1, true)[0] + rgb_img(r + 1, c + 1, true)[0];
 						float comp2 = rgb_img(r, c)[1] - rgb_img(r - 1, c - 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c + 1, true)[1];
-						rgb_img(r, c)[0] = std::round((comp / 2) + (comp2 / 4));
+						rgb_img(r, c)[0] = std::floor(clamp(((comp / 2) + (comp2 / 4))));
 					}
 					else if (diag1grad > diag2grad)
 					{
 						float comp = rgb_img(r - 1, c + 1, true)[0] + rgb_img(r + 1, c - 1, true)[0];
 						float comp2 = rgb_img(r, c)[1] - rgb_img(r - 1, c + 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c - 1, true)[1];
-						rgb_img(r, c)[0] = std::round((comp / 2) + (gneigh2 / 4));
+						rgb_img(r, c)[0] = std::floor(clamp(((comp / 2) + (comp2 / 4))));
 					}
-					else
+					else if (diag1grad == diag2grad)
 					{
 						float comp = rgb_img(r - 1, c + 1, true)[0] + rgb_img(r + 1, c - 1, true)[0]
 							+ rgb_img(r - 1, c - 1, true)[0] + rgb_img(r + 1, c + 1, true)[0];
@@ -192,7 +203,7 @@ auto interpolate_red_blue(matrix<std::array<uint8_t, 3>>& rgb_img) {
 							+ rgb_img(r, c)[1] - rgb_img(r - 1, c + 1, true)[1]
 							+ rgb_img(r, c)[1] - rgb_img(r + 1, c - 1, true)[1];
 
-						rgb_img(r, c)[0] = std::round((comp / 4) + (comp2 / 8));
+						rgb_img(r, c)[0] = std::floor(clamp(((comp / 4) + (comp2 / 8))));
 					}
 				}
 			}
@@ -214,28 +225,28 @@ auto interpolate_green(matrix<std::array<uint8_t, 3>>& rgb_img) {
 		for (int c = startrow; c < rgb_img.get_col(); c+=2)
 		{
 			// |G4 - G6|
-			int hg1 = std::abs(rgb_img(r, c - 1, true)[1] - rgb_img(r, c + 1, true)[1]);
+			float hg1 = std::abs(rgb_img(r, c - 1, true)[1] - rgb_img(r, c + 1, true)[1]);
 			// |X5 - X3 + X5 - X7|
-			int hg2 = std::abs(rgb_img(r, c)[s] - rgb_img(r, c - 2, true)[s] + rgb_img(r, c)[s] - rgb_img(r, c + 2, true)[s]);
-			int hgradient = hg1 + hg2;
+			float hg2 = std::abs(rgb_img(r, c)[s] - rgb_img(r, c - 2, true)[s] + rgb_img(r, c)[s] - rgb_img(r, c + 2, true)[s]);
+			float hgradient = hg1 + hg2;
 
 			// |Gsup - Ginf|
-			int vg1 = std::abs(rgb_img(r - 1, c, true)[1] - rgb_img(r + 1, c, true)[1]);
+			float vg1 = std::abs(rgb_img(r - 1, c, true)[1] - rgb_img(r + 1, c, true)[1]);
 			// |X5 - Xsup2 + X5 - Xinf2|
-			int vg2 = std::abs(rgb_img(r, c)[s] - rgb_img(r - 2, c, true)[s] + rgb_img(r, c)[s] - rgb_img(r + 2, c, true)[s]);
-			int vgradient = vg1 + vg2;
+			float vg2 = std::abs(rgb_img(r, c)[s] - rgb_img(r - 2, c, true)[s] + rgb_img(r, c)[s] - rgb_img(r + 2, c, true)[s]);
+			float vgradient = vg1 + vg2;
 
 			if (hgradient < vgradient)
 			{
 				float comp = rgb_img(r, c - 1, true)[1] + rgb_img(r, c + 1, true)[1];
 				float comp2 = rgb_img(r, c)[s] - rgb_img(r, c - 2, true)[s] + rgb_img(r, c)[s] - rgb_img(r, c + 2, true)[s];
-				rgb_img(r, c)[1] = std::round((comp/2) + (comp2/4));
+				rgb_img(r, c)[1] = clamp(((float)(comp/2) + (float)(comp2/4)));
 			}
 			else if (hgradient > vgradient)
 			{
 				float comp = rgb_img(r - 1, c, true)[1] + rgb_img(r + 1, c, true)[1];
 				float comp2 = rgb_img(r, c)[s] - rgb_img(r - 2, c, true)[s] + rgb_img(r, c)[s] - rgb_img(r + 2, c, true)[s];
-				rgb_img(r, c)[1] = std::round((comp/2) + (comp2 / 4));
+				rgb_img(r, c)[1] = clamp(((float)(comp/2) + (float)(comp2 / 4)));
 			}
 			else
 			{
@@ -245,7 +256,7 @@ auto interpolate_green(matrix<std::array<uint8_t, 3>>& rgb_img) {
 				float comp2 = rgb_img(r, c)[s] - rgb_img(r, c - 2, true)[s] + rgb_img(r, c)[s] - rgb_img(r, c + 2, true)[s]
 					+ rgb_img(r, c)[s] - rgb_img(r - 2, c, true)[s] + rgb_img(r, c)[s] - rgb_img(r + 2, c, true)[s];
 
-				rgb_img(r, c)[1] = std::round((comp / 4) + (comp2 / 8));
+				rgb_img(r, c)[1] = clamp(((float)(comp / 4) + (float)(comp2 / 8)));
 			}
 
 		}
@@ -275,13 +286,13 @@ auto build_rgb(matrix<std::array<uint8_t, 3>>& rgb_img, matrix<uint8_t>& img) {
 		{
 			if (line == 0)
 			{
-				rgb_img(r, c)[0] = img(r, c);
-				rgb_img(r, c + 1)[1] = img(r, c + 1);
+				rgb_img(r, c)[0] = clamp(img(r, c));
+				rgb_img(r, c + 1)[1] = clamp(img(r, c + 1));
 			}
 			else
 			{
-				rgb_img(r, c)[1] = img(r, c);
-				rgb_img(r, c + 1)[2] = img(r, c + 1);
+				rgb_img(r, c)[1] = clamp(img(r, c));
+				rgb_img(r, c + 1)[2] = clamp(img(r, c + 1));
 			}
 		}
 	}
@@ -324,8 +335,9 @@ auto read_pmg(matrix<uint8_t>& img, std::istream& is) {
 			val = is.get();
 			val <<= 8;
 			val |= is.get();
-			float f = std::round(static_cast<float>(val) / 256);
-			img(r, c) = f;
+			//val = clamp(val);
+			float f =  (static_cast<float>(val) / 256);
+			img(r, c) = std::round(clamp(f));
 		}
 	}
 }
