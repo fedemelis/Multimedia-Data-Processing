@@ -169,10 +169,12 @@ std::pair<box, box> split_on_median(int channel, const box& b) {
 
 	box copy = b;
 
+	// assicura che l'elemento nth-esimo sia in posizione corretta
 	std::nth_element(copy.begin(), (copy.begin() + half + 1), copy.end(), [channel](vec3b& lhs, vec3b& rhs) {return lhs[channel] > rhs[channel]; });
 
 	auto half_it = std::next(copy.begin() + half);
 
+	// prendo le due porzioni di colori rimanenti
 	box left(std::vector<vec3b>(copy.begin(), half_it));
 	box right(std::vector<vec3b>(half_it, copy.end()));
 
@@ -315,7 +317,7 @@ int main(int argc, char* argv[]) {
 
 	//std::vector<vec3b> palette;
 
-	size_t N = 16;
+	size_t N = 8;
 	//split_space_in_box(img, N);
 
 	std::vector<vec3b> palette = split_space_in_box(img, N);
@@ -348,7 +350,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	std::ofstream os("zanettiout.ppm", std::ios::binary);
+	std::ofstream os("zanettttttt.ppm", std::ios::binary);
 	if(!os)
 	{
 		return EXIT_FAILURE;
