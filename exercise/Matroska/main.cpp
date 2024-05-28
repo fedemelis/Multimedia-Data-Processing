@@ -231,6 +231,8 @@ static const std::map<uint32_t, std::string> binElements{
 		{0xA3, "SimpleBlock"},
 		{0xA1, "Block"},
 		{0xA5, "BlockAdditional"},
+		{0xBF, "CRC32"},
+		{0xEC, "EBML Void"},
 };
 bool isBin(uint32_t id) {
 	return binElements.find(id) != binElements.end();
@@ -349,7 +351,6 @@ uint64_t read_rec(std::ifstream& is) {
 			}
 			return e.size_;
 		}
-		//decoding.push_back(e);
 	}
 }
 

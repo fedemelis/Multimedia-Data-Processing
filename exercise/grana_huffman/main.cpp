@@ -211,13 +211,15 @@ void compress(const std::string& input_filename, const std::string& output_filen
 	os << "HUFFMAN1";
 	os.put(static_cast<char>(f.size()));
 
+	h.make_canonical();
 	// const auto& [x, y] scompatta una coppia
 
 	for (const auto& [sym, x] : h.code_map) {
 		auto&& [code, len] = x;
 		bw(sym, 8);
 		bw(len, 5);
-		bw(code, len);
+		//bw(code, len);
+		std::cout << "Symbol: " << sym << "\tLen: " << +len << std::endl;
 	}
 	bw(v.size(), 32);
 	for (const auto& x : v) {
