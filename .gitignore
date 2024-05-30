@@ -12,6 +12,7 @@
 **/x64/
 **/debug/
 **/.vs/
+**/data/
 
 # Precompiled Headers
 *.gch
