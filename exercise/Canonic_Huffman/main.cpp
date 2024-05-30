@@ -109,9 +109,13 @@ struct node
 
 	node(uint8_t sym, uint64_t freq, node* left = nullptr, node* right = nullptr) : sym_(sym), freq_(freq), left_(left), right_(right) {}
 
+	/*bool operator<(const node* rhs) const {
+		return freq_ > rhs->freq_;
+	}
+
 	bool operator()(const node* a, const node* b) {
 			return a->freq_ > b->freq_;
-		}
+	}*/
 
 	void compute_lenght(node* root, uint8_t lvl, std::vector<std::pair<uint8_t, uint8_t>>&lenmap) {
 		if (root->left_ == nullptr)
