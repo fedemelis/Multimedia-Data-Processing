@@ -80,24 +80,48 @@ struct bitwriter
 	}
 };
 
-auto to_base85(uint64_t v, std::string& s) {
+struct table
+{
+	std::unordered_map<uint8_t, std::string> base10_to_base85;
+	std::unordered_map<std::string, uint32_t> base85_to_base10;
+};
+
+auto to_base85(uint64_t v, std::string& s, table& t) {
 	for (size_t i = 0; i < 5; i++)
 	{
 		auto x = v % 85;
-		std::string ss(1, x);
-		s.append(ss);
+		auto it = t.base10_to_base85.find(x);
+		if (it == t.base10_to_base85.end())
+		{
+			std::string ss(1, x);
+			s.append(ss);
+		}
+		else
+		{
+			s.append(t.base10_to_base85[v]);
+		}
 		v /= 85;
 	}
 	std::reverse(s.begin(), s.end());
 }
 
-auto to_base10(std::string& s) {
+auto to_base10(std::string& s, table& t) {
 	uint32_t res = 0;
-	for (size_t i = 0; i < 5; i++)
+	if (t.base85_to_base10.find(s) == t.base85_to_base10.end())
 	{
-		res += (s[i] * std::pow(85, i));
+		for (size_t i = 0; i < 5; i++)
+		{
+
+			res += (s[i] * std::pow(85, i));
+		}
+		t.base85_to_base10[s] = res;
+		return res;
 	}
-	return res;
+	else
+	{
+		return t.base85_to_base10[s];
+	}
+	
 }
 
 auto rotate(int N, std::string& s, int start) {
@@ -168,14 +192,12 @@ auto backRotate(int N, std::string& s, int start) {
 		if ((s[i] + r) > 84)
 		{
 			auto x = s[i] - (85 * ((r / 85) + 1)) + r;
-			s[i] = ascii85[x];
-			s[i] = ascii85_map[s[i]];
+			s[i] = ascii85_map[ascii85[x]];
 		}
 		else
 		{
 			auto x = s[i] + r;
-			s[i] = ascii85[x];
-			s[i] = ascii85_map[s[i]];
+			s[i] = ascii85_map[ascii85[x]];
 		}
 		r += N;
 		if (r > 84)
@@ -211,6 +233,8 @@ auto demapping(std::string& s) {
 
 
 auto compress(int N, const char* inputfile, const char* outputfile) {
+
+	table t;
 
 	std::ifstream is(inputfile, std::ios::binary);
 	if (!is)
@@ -276,7 +300,7 @@ auto compress(int N, const char* inputfile, const char* outputfile) {
 		}
 
 		std::string b85;
-		to_base85(buf, b85);
+		to_base85(buf, b85, t);
 
 		rotate(N, b85, start);
 		start += N * 5;
@@ -286,11 +310,15 @@ auto compress(int N, const char* inputfile, const char* outputfile) {
 		}
 
 		os << b85;
+		//std::cout << i << std::endl;
 	}
 	return EXIT_SUCCESS;
 }
 
 auto decompress(int N, const char* inputfile, const char* outputfile) {
+
+	table t;
+
 	std::ifstream is(inputfile, std::ios::binary);
 	if (!is)
 	{
@@ -346,7 +374,7 @@ auto decompress(int N, const char* inputfile, const char* outputfile) {
 
 		backRotate(N, s, start);
 
-		buf = to_base10(s);
+		buf = to_base10(s, t);
 
 		if (i == ((3 * height * width) / 4))
 		{
