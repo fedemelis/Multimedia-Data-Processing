@@ -317,7 +317,7 @@ int main(int argc, char* argv[]) {
 
 	//std::vector<vec3b> palette;
 
-	size_t N = 8;
+	size_t N = 3;
 	//split_space_in_box(img, N);
 
 	std::vector<vec3b> palette = split_space_in_box(img, N);
