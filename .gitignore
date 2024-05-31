@@ -37,3 +37,10 @@
 *.exe
 *.out
 *.app
+exercise/Canonic_Huffman/diff.bin
+exercise/Canonic_Huffman/diff.compressed
+exercise/Canonic_Huffman/diff.decompressed
+exercise/Canonic_Huffman/diff.compressed2time
+exercise/neuralink/diff.compressed
+exercise/neuralink/diff.decompressed
+exercise/neuralink/diff.bin
