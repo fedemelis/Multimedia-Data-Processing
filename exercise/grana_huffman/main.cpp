@@ -19,7 +19,7 @@
 
 void syntax() {
 	std::print("SYNTAX:\n"
-		"huffman1 [c|d] <filein> <fileout>\n");
+		"huffman2 [c|d] <filein> <fileout>\n");
 	exit(EXIT_FAILURE);
 }
 
@@ -110,21 +110,17 @@ struct huffman {
 		node* right_;
 	};
 
-
-	//ridefinizione del confronto
 	struct nodeptr_less {
 		bool operator()(const node* a, const node* b) {
 			return a->freq_ > b->freq_;
 		}
 	};
 
-	// con unique_ptr non devo occuparmi di liberare la memoria
 	std::vector<std::unique_ptr<node>> nodes_;
 
-	// ripeti un certo numero di volte typename Ts
 	template<typename... Ts>
-	node* make_node(Ts... args) { //accetto un numero arbitrario di parametri
-		nodes_.emplace_back(std::make_unique<node>(std::forward<Ts>(args)...)); //(args)... vuol dire fai unpack di args
+	node* make_node(Ts... args) {
+		nodes_.emplace_back(std::make_unique<node>(std::forward<Ts>(args)...));
 		return nodes_.back().get();
 	}
 
@@ -132,7 +128,6 @@ struct huffman {
 	std::vector<std::tuple<uint64_t, T, uint64_t>> canonical; // {len, sym, code}
 
 	void generate_codes(const node* n, uint64_t code = 0, uint64_t len = 0) {
-		// mi basta controllare se uno dei due figli esiste perchè o ci sono entrambi o non ci sono entrambi
 		if (n->left_ == 0) {
 			code_map[n->sym_] = { code, len };
 		}
@@ -176,8 +171,6 @@ struct huffman {
 			node* n2 = v.back();
 			v.pop_back();
 
-
-			//costruisco un nodo con 5 parametri, il primo parametro non ha significato poiché non siamo in una foglia
 			node* n = make_node(T{}, n1->freq_ + n2->freq_, n1, n2);
 
 			auto pos = std::ranges::lower_bound(v, n, nodeptr_less{});
@@ -201,6 +194,7 @@ void compress(const std::string& input_filename, const std::string& output_filen
 	auto f = std::ranges::for_each(v, frequency<uint8_t, uint64_t>{}).fun;
 
 	huffman<uint8_t> h(f);
+	h.make_canonical();
 
 	std::ofstream os(output_filename, std::ios::binary);
 	if (!os) {
@@ -208,18 +202,12 @@ void compress(const std::string& input_filename, const std::string& output_filen
 	}
 	bitwriter bw(os);
 
-	os << "HUFFMAN1";
+	os << "HUFFMAN2";
 	os.put(static_cast<char>(f.size()));
-
-	h.make_canonical();
-	// const auto& [x, y] scompatta una coppia
-
-	for (const auto& [sym, x] : h.code_map) {
-		auto&& [code, len] = x;
+	for (const auto& [len, sym, code] : h.canonical) {
 		bw(sym, 8);
 		bw(len, 5);
-		//bw(code, len);
-		std::cout << "Symbol: " << sym << "\tLen: " << +len << std::endl;
+		std::println("{:02x}, {}	", sym, len);
 	}
 	bw(v.size(), 32);
 	for (const auto& x : v) {
@@ -237,28 +225,23 @@ void decompress(const std::string& input_filename,
 	}
 	bitreader br(is);
 
-
-
-	/*std::string test;
-	is.read(const_cast<char*>(test.c_str()), 8);*/
-
 	std::string magic(8, ' ');
 	is.read(magic.data(), 8);
-	if (magic != "HUFFMAN1") {
+	if (magic != "HUFFMAN2") {
 		return;
 	}
 	size_t tblsize = is.get();
 	if (tblsize == 0) {
 		tblsize = 256;
 	}
-	std::vector<std::tuple<uint64_t, uint8_t, uint64_t>> tbl; // len,sym,code
+	huffman<uint8_t> h;
 	for (size_t i = 0; i < tblsize; ++i) {
 		uint8_t sym = static_cast<uint8_t>(br(8));
 		uint64_t len = br(5);
-		uint64_t code = br(len);
-		tbl.emplace_back(len, sym, code); //emplace back prende gli argomenti e li passa al costruttore del tipo di dati contenuto nel vettore
+		h.code_map[sym] = { 0, len };
 	}
-	std::ranges::sort(tbl);
+	h.make_canonical();
+	auto& tbl = h.canonical;
 	size_t numsym = br(32);
 
 	std::ofstream os(output_filename, std::ios::binary);

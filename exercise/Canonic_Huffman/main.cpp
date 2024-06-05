@@ -7,6 +7,10 @@
 #include <map>
 #include <memory>
 #include <bitset>
+#include <ranges>
+
+#define print(...) cout << std::format(__VA_ARGS__)
+#define println(...) cout << std::format(__VA_ARGS__) << "\n"
 
 struct bitwriter
 {
@@ -104,6 +108,11 @@ struct node
 	std::vector<std::pair<uint8_t, uint8_t>> lenmap;
 	std::map<uint8_t, uint8_t> len_mapping;
 
+	struct nodeptr_less {
+		bool operator()(const node* a, const node* b) {
+			return a->freq_ > b->freq_;
+		}
+	};
 
 	node() {}
 
@@ -122,18 +131,13 @@ struct node
 		{
 			lenmap.emplace_back(root->sym_, lvl);
 			len_mapping[root->sym_] = lvl;
-			return;
 		}
 
 		if (root->left_ != nullptr)
 		{
 			compute_lenght(root->left_, lvl + 1, lenmap);
-		}
-		if (root->right_ != nullptr)
-		{
 			compute_lenght(root->right_, lvl + 1, lenmap);
 		}
-		return;
 	}
 
 	void compute_canonical_code(std::map<uint8_t, uint32_t>& sym_code_map, std::vector<std::pair<uint8_t, uint8_t>>& sym_len_map) {
@@ -156,6 +160,7 @@ struct node
 			nodeManager.emplace_back(std::make_unique<node>(sym, len, nullptr, nullptr));
 		}
 
+
 		std::vector<node*> nodes;
 		
 		for (size_t i = 0; i < nodeManager.size(); i++)
@@ -165,6 +170,8 @@ struct node
 		}
 
 		std::sort(nodes.begin(), nodes.end(), [](const node* lhs, const node* rhs) {return lhs->freq_ > rhs->freq_; });
+		//std::sort(nodes.begin(), nodes.end(), nodeptr_less{}); uguale al mio 
+		//std::ranges::sort(nodes, nodeptr_less{}); uguale al mio
 
 		while (nodes.size() > 1)
 		{
@@ -256,7 +263,7 @@ auto encode(const char* inputfile, const char* outputfile){
 		br(sym, 8);
 		br(len, 5);
 		//std::cout << +elem.second;
-		std::cout << "Symbol: " << sym << "\tLen: " << +len << std::endl;
+		std::println("{:02x}, {}", sym, len);
 	}
 
 	uint32_t n_coded = data.size();
