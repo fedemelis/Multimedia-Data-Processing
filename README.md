@@ -60,6 +60,3 @@ Questo repository contiene una collezione di esercizi progettati per esplorare d
 
 ---
 
-## Licenza
-Questo repository è distribuito sotto la licenza MIT. Consulta il file `LICENSE` per maggiori dettagli.
-
